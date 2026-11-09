@@ -114,12 +114,16 @@ function percentText(pct) {
   return Math.round(pct) + "%";
 }
 
-// "6.7/15G": used keeps one decimal, the total drops it once it is big
-// enough that the digit would only add noise.
-function pairText(used, total) {
+// "7.6 / 15.4 GB": the tooltip's fuller reading, with both figures and units.
+function detailText(used, total) {
   if (!isFinite(total) || total <= 0 || !isFinite(used) || used < 0) return "—";
-  var totalText = total >= 10 ? String(Math.round(total)) : Number(total).toFixed(1);
-  return Number(used).toFixed(1) + "/" + totalText + "G";
+  return Number(used).toFixed(1) + " / " + Number(total).toFixed(1) + " GB";
+}
+
+// "7.6GB": the bar only needs the used figure; the total lives in the tooltip.
+function sizeText(gib) {
+  if (!isFinite(gib) || gib < 0) return "—";
+  return Number(gib).toFixed(1) + "GB";
 }
 
 // Used fraction of a total, for threshold colours and tooltips.
@@ -152,7 +156,8 @@ if (typeof module !== "undefined" && module.exports) {
     parseNvidia: parseNvidia,
     clamp: clamp,
     percentText: percentText,
-    pairText: pairText,
+    detailText: detailText,
+    sizeText: sizeText,
     fraction: fraction,
     isCritical: isCritical,
     kibToGib: kibToGib,

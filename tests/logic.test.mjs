@@ -64,9 +64,10 @@ test("percentages, bytes and NVIDIA readings are bounded", () => {
 test("formatting stays compact", () => {
   assert.equal(Logic.percentText(-1), "—");
   assert.equal(Logic.percentText(12.4), "12%");
-  assert.equal(Logic.pairText(6.74, 15.4), "6.7/15G");
-  assert.equal(Logic.pairText(1, 8), "1.0/8.0G");
-  assert.equal(Logic.pairText(1, -1), "—");
+  assert.equal(Logic.sizeText(7.64), "7.6GB");
+  assert.equal(Logic.sizeText(-1), "—");
+  assert.equal(Logic.detailText(7.64, 15.42), "7.6 / 15.4 GB");
+  assert.equal(Logic.detailText(1, -1), "—");
   assert.equal(Math.round(Logic.fraction(50, 200)), 25);
   assert.equal(Logic.isCritical(90), true);
   assert.equal(Logic.isCritical(89.9), false);

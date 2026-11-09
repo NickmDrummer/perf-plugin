@@ -21,7 +21,7 @@
       "cpu": true,
       "ram": true,
       "gpu": true,
-      "vram": false,
+      "vram": true,
       "interval": 1000
     },
     "schema": [
@@ -47,7 +47,7 @@
         "key": "vram",
         "type": "boolean",
         "label": "Show VRAM",
-        "defaultValue": false
+        "defaultValue": true
       },
       {
         "key": "interval",

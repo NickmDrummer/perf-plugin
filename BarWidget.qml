@@ -60,10 +60,10 @@ BarWidget {
   readonly property string barLabel: {
     var parts = []
     if (wantsCpu) parts.push("CPU " + Logic.percentText(cpuPct))
-    if (wantsRam) parts.push("RAM " + Logic.pairText(Logic.kibToGib(ramUsedKb), Logic.kibToGib(ramTotalKb)))
+    if (wantsRam) parts.push("RAM " + Logic.sizeText(Logic.kibToGib(ramUsedKb)))
     if (wantsGpu && hasGpu) parts.push("GPU " + Logic.percentText(gpuPct))
-    if (wantsVram && hasVram) parts.push("VRAM " + Logic.pairText(Logic.mibToGib(vramUsedMib), Logic.mibToGib(vramTotalMib)))
-    return parts.join("  ")
+    if (wantsVram && hasVram) parts.push("VRAM " + Logic.sizeText(Logic.mibToGib(vramUsedMib)))
+    return parts.join(" | ")
   }
 
   // A vertical bar is 28px wide, so the labels give way to bare values; the
@@ -71,18 +71,20 @@ BarWidget {
   readonly property string verticalLabel: {
     var parts = []
     if (wantsCpu) parts.push(Logic.percentText(cpuPct))
-    if (wantsRam) parts.push(Logic.pairText(Logic.kibToGib(ramUsedKb), Logic.kibToGib(ramTotalKb)))
+    if (wantsRam) parts.push(Logic.sizeText(Logic.kibToGib(ramUsedKb)))
     if (wantsGpu && hasGpu) parts.push(Logic.percentText(gpuPct))
-    if (wantsVram && hasVram) parts.push(Logic.pairText(Logic.mibToGib(vramUsedMib), Logic.mibToGib(vramTotalMib)))
+    if (wantsVram && hasVram) parts.push(Logic.sizeText(Logic.mibToGib(vramUsedMib)))
     return parts.join("\n")
   }
 
   readonly property string tooltip: {
     var lines = []
     if (wantsCpu) lines.push("CPU  " + Logic.percentText(cpuPct))
-    if (wantsRam) lines.push("RAM  " + Logic.pairText(Logic.kibToGib(ramUsedKb), Logic.kibToGib(ramTotalKb)))
+    if (wantsRam) lines.push("RAM  " + Logic.detailText(Logic.kibToGib(ramUsedKb), Logic.kibToGib(ramTotalKb))
+                              + (ramPct >= 0 ? " (" + Math.round(ramPct) + "%)" : ""))
     if (wantsGpu && hasGpu) lines.push("GPU  " + Logic.percentText(gpuPct))
-    if (wantsVram && hasVram) lines.push("VRAM  " + Logic.pairText(Logic.mibToGib(vramUsedMib), Logic.mibToGib(vramTotalMib)))
+    if (wantsVram && hasVram) lines.push("VRAM  " + Logic.detailText(Logic.mibToGib(vramUsedMib), Logic.mibToGib(vramTotalMib))
+                                          + (vramPct >= 0 ? " (" + Math.round(vramPct) + "%)" : ""))
     if (lines.length === 0) return ""
     return lines.join("\n")
   }

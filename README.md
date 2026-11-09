@@ -3,15 +3,16 @@
 A small bar widget that shows system load at a glance:
 
 ```
-CPU 7%  RAM 8.3/15G  GPU 16%
+CPU 7% | RAM 8.3GB | GPU 16% | VRAM 1.2GB
 ```
 
 - **CPU** — busy share of all cores, sampled between refreshes (not the
   cumulative average since boot).
-- **RAM** — used/total, with "used" taken from `MemAvailable` so reclaimable
-  cache is not counted as pressure.
+- **RAM** — used memory, with "used" taken from `MemAvailable` so reclaimable
+  cache is not counted as pressure. The bar shows the used figure alone; the
+  tooltip adds the total and the percentage.
 - **GPU** — utilisation from the card's own driver.
-- **VRAM** — used/total video memory, off by default.
+- **VRAM** — used video memory; the tooltip adds the total and the percentage.
 
 Hover for a labelled breakdown. The text turns to the theme's urgent colour at
 90% or above. Left click opens `btop` in a floating terminal.
@@ -44,7 +45,7 @@ Configured per widget instance from the Omarchy bar settings (or inline in
 | `cpu` | boolean | `true` | Show CPU |
 | `ram` | boolean | `true` | Show RAM |
 | `gpu` | boolean | `true` | Show GPU |
-| `vram` | boolean | `false` | Show VRAM |
+| `vram` | boolean | `true` | Show VRAM |
 | `interval` | integer (500–5000 ms) | `1000` | Refresh interval |
 
 ## Install and enable
