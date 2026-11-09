@@ -280,7 +280,9 @@ BarWidget {
     anchors.fill: parent
     bar: root.bar
     text: root.vertical ? root.verticalLabel : root.barLabel
-    fontSize: Style.font.caption
+    // A step above the smallest bar text, still under the bar's default body
+    // size so the readings don't compete with the clock.
+    fontSize: Style.font.bodySmall
     horizontalMargin: 6
     tooltipText: root.tooltip
     active: root.critical
