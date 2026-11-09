@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "id": "nickmdrummer.perf",
+  "name": "Performance",
+  "version": "0.1.0",
+  "author": "nickmdrummer",
+  "description": "CPU, RAM, GPU and VRAM usage in the bar.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Performance",
+    "description": "CPU, RAM, GPU and VRAM usage, read from procfs and sysfs.",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "cpu": true,
+      "ram": true,
+      "gpu": true,
+      "vram": false,
+      "interval": 1000
+    },
+    "schema": [
+      {
+        "key": "cpu",
+        "type": "boolean",
+        "label": "Show CPU",
+        "defaultValue": true
+      },
+      {
+        "key": "ram",
+        "type": "boolean",
+        "label": "Show RAM",
+        "defaultValue": true
+      },
+      {
+        "key": "gpu",
+        "type": "boolean",
+        "label": "Show GPU",
+        "defaultValue": true
+      },
+      {
+        "key": "vram",
+        "type": "boolean",
+        "label": "Show VRAM",
+        "defaultValue": false
+      },
+      {
+        "key": "interval",
+        "type": "integer",
+        "label": "Refresh interval (ms)",
+        "min": 500,
+        "max": 5000,
+        "step": 250,
+        "defaultValue": 1000
+      }
+    ]
+  }
+}
