@@ -20,7 +20,7 @@ BarWidget {
   readonly property bool wantsCpu: root.setting("cpu", true) !== false
   readonly property bool wantsRam: root.setting("ram", true) !== false
   readonly property bool wantsGpu: root.setting("gpu", true) !== false
-  readonly property bool wantsVram: root.setting("vram", false) === true
+  readonly property bool wantsVram: root.setting("vram", true) !== false
   // One second by default, the pace btop runs at on its default profile.
   readonly property int refreshMs: {
     var value = Number(root.setting("interval", 1000))
