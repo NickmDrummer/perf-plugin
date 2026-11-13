@@ -18,9 +18,11 @@ marketplace. The plugin id is `nickmdrummer.perf`.
 - **GPU** — utilisation from the card's own driver.
 - **VRAM** — used video memory.
 
-Hover for the fuller reading (used/total and percentage for memory). The text
-turns to the theme's urgent colour at 90% or above. Left click opens `btop` in
-a floating terminal.
+Each reading sits in its own pill: a rounded, borderless, semi-transparent
+black capsule under white text, so the values stay separate groups. A reading
+at 90% or above tints only its own capsule red; the other pills keep the
+neutral black. Hover a pill for its fuller reading (used/total and percentage
+for memory). Left click opens `btop` in a floating terminal.
 
 ## Install
 

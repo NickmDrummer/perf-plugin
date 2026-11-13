@@ -50,44 +50,28 @@ BarWidget {
   readonly property real ramPct: Logic.fraction(ramUsedKb, ramTotalKb)
   readonly property real vramPct: Logic.fraction(vramUsedMib, vramTotalMib)
 
-  readonly property bool critical: (wantsCpu && Logic.isCritical(cpuPct))
-    || (wantsRam && Logic.isCritical(ramPct))
-    || (wantsGpu && hasGpu && Logic.isCritical(gpuPct))
-    || (wantsVram && hasVram && Logic.isCritical(vramPct))
+  // Each reading owns its warning state, so one saturated metric colours its
+  // own pill without dragging the others along.
+  readonly property bool cpuCritical: wantsCpu && Logic.isCritical(cpuPct)
+  readonly property bool ramCritical: wantsRam && Logic.isCritical(ramPct)
+  readonly property bool gpuCritical: wantsGpu && hasGpu && Logic.isCritical(gpuPct)
+  readonly property bool vramCritical: wantsVram && hasVram && Logic.isCritical(vramPct)
 
   // ------------------------------------------------------------------ labels
 
-  readonly property string barLabel: {
-    var parts = []
-    if (wantsCpu) parts.push("CPU " + Logic.percentText(cpuPct))
-    if (wantsRam) parts.push("RAM " + Logic.sizeText(Logic.kibToGib(ramUsedKb)))
-    if (wantsGpu && hasGpu) parts.push("GPU " + Logic.percentText(gpuPct))
-    if (wantsVram && hasVram) parts.push("VRAM " + Logic.sizeText(Logic.mibToGib(vramUsedMib)))
-    return parts.join(" | ")
-  }
+  // One pill per reading, each carrying only its own value.
+  readonly property string cpuText: "CPU " + Logic.percentText(cpuPct)
+  readonly property string ramText: "RAM " + Logic.sizeText(Logic.kibToGib(ramUsedKb))
+  readonly property string gpuText: hasGpu ? "GPU " + Logic.percentText(gpuPct) : ""
+  readonly property string vramText: hasVram ? "VRAM " + Logic.sizeText(Logic.mibToGib(vramUsedMib)) : ""
 
-  // A vertical bar is 28px wide, so the labels give way to bare values; the
-  // tooltip still names every one of them.
-  readonly property string verticalLabel: {
-    var parts = []
-    if (wantsCpu) parts.push(Logic.percentText(cpuPct))
-    if (wantsRam) parts.push(Logic.sizeText(Logic.kibToGib(ramUsedKb)))
-    if (wantsGpu && hasGpu) parts.push(Logic.percentText(gpuPct))
-    if (wantsVram && hasVram) parts.push(Logic.sizeText(Logic.mibToGib(vramUsedMib)))
-    return parts.join("\n")
-  }
-
-  readonly property string tooltip: {
-    var lines = []
-    if (wantsCpu) lines.push("CPU  " + Logic.percentText(cpuPct))
-    if (wantsRam) lines.push("RAM  " + Logic.detailText(Logic.kibToGib(ramUsedKb), Logic.kibToGib(ramTotalKb))
-                              + (ramPct >= 0 ? " (" + Math.round(ramPct) + "%)" : ""))
-    if (wantsGpu && hasGpu) lines.push("GPU  " + Logic.percentText(gpuPct))
-    if (wantsVram && hasVram) lines.push("VRAM  " + Logic.detailText(Logic.mibToGib(vramUsedMib), Logic.mibToGib(vramTotalMib))
-                                          + (vramPct >= 0 ? " (" + Math.round(vramPct) + "%)" : ""))
-    if (lines.length === 0) return ""
-    return lines.join("\n")
-  }
+  // The tooltips keep the fuller readings, where the total belongs.
+  readonly property string cpuTip: "CPU  " + Logic.percentText(cpuPct)
+  readonly property string ramTip: "RAM  " + Logic.detailText(Logic.kibToGib(ramUsedKb), Logic.kibToGib(ramTotalKb))
+    + (ramPct >= 0 ? " (" + Math.round(ramPct) + "%)" : "")
+  readonly property string gpuTip: "GPU  " + Logic.percentText(gpuPct)
+  readonly property string vramTip: "VRAM  " + Logic.detailText(Logic.mibToGib(vramUsedMib), Logic.mibToGib(vramTotalMib))
+    + (vramPct >= 0 ? " (" + Math.round(vramPct) + "%)" : "")
 
   // ------------------------------------------------------------------ reads
 
@@ -272,24 +256,63 @@ BarWidget {
 
   // --------------------------------------------------------------------- UI
 
-  implicitWidth: button.implicitWidth
-  implicitHeight: button.implicitHeight
+  implicitWidth: pills.implicitWidth
+  implicitHeight: pills.implicitHeight
 
-  WidgetButton {
-    id: button
-    anchors.fill: parent
-    bar: root.bar
-    text: root.vertical ? root.verticalLabel : root.barLabel
-    // A step above the smallest bar text, still under the bar's default body
-    // size so the readings don't compete with the clock.
-    fontSize: Style.font.bodySmall
-    horizontalMargin: 6
-    tooltipText: root.tooltip
-    active: root.critical
-    activeColor: root.bar ? root.bar.urgent : Commons.Color.urgent
-    onPressed: function(mouseButton) {
-      if (mouseButton === Qt.LeftButton && root.bar)
-        root.bar.run("omarchy-launch-floating-terminal-with-presentation btop")
+  // Each reading gets its own pill: a rounded, borderless capsule of
+  // semi-transparent black under white text, so several of them read as
+  // separate groups rather than one run of numbers. A reading past its limit
+  // tints its own capsule red; the others stay neutral, and no pill touches
+  // another's colour.
+  Grid {
+    id: pills
+    anchors.centerIn: parent
+    columns: root.vertical ? 1 : 4
+    rowSpacing: 2
+    columnSpacing: 3
+
+    Pill { label: root.cpuText; tip: root.cpuTip; danger: root.cpuCritical; shown: root.wantsCpu }
+    Pill { label: root.ramText; tip: root.ramTip; danger: root.ramCritical; shown: root.wantsRam }
+    Pill { label: root.gpuText; tip: root.gpuTip; danger: root.gpuCritical; shown: root.wantsGpu && root.hasGpu }
+    Pill { label: root.vramText; tip: root.vramTip; danger: root.vramCritical; shown: root.wantsVram && root.hasVram }
+  }
+
+  component Pill: Item {
+    id: pill
+    property string label: ""
+    property string tip: ""
+    property bool danger: false
+    property bool shown: true
+
+    visible: pill.shown && pill.label !== ""
+    implicitWidth: pillButton.implicitWidth
+    implicitHeight: pillButton.implicitHeight
+
+    Rectangle {
+      anchors.fill: parent
+      anchors.topMargin: 3
+      anchors.bottomMargin: 3
+      radius: height / 2
+      color: pill.danger ? Qt.rgba(0.78, 0.16, 0.16, 0.92) : Qt.rgba(0, 0, 0, 0.55)
+      Behavior on color { ColorAnimation { duration: Style.duration(160) } }
+    }
+
+    WidgetButton {
+      id: pillButton
+      anchors.fill: parent
+      bar: root.bar
+      text: pill.label
+      // A step above the smallest bar text, still under the bar's default body
+      // size so the readings don't compete with the clock.
+      fontSize: Style.font.bodySmall
+      // White on the black capsule, in both states.
+      foreground: "#ffffff"
+      horizontalMargin: 5
+      tooltipText: pill.tip
+      onPressed: function(mouseButton) {
+        if (mouseButton === Qt.LeftButton && root.bar)
+          root.bar.run("omarchy-launch-floating-terminal-with-presentation btop")
+      }
     }
   }
 }
